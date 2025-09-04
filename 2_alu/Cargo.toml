@@ -1,0 +1,7 @@
+[package]
+name = "alu"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+logic_gates = {path = "../1_logic_gates"}
