@@ -12,7 +12,3 @@ dependencies = [
 [[package]]
 name = "logic_gates"
 version = "0.1.0"
-
-[[package]]
-name = "nand2tetris"
-version = "0.1.0"

@@ -9,6 +9,19 @@ pub fn or8way(i: Arr8) -> bool {
     )
 }
 
+pub fn or16way(i: Arr16) -> bool {
+    or(
+        or(
+            or(or(i[0], i[1]), or(i[2], i[3])),
+            or(or(i[4], i[5]), or(i[6], i[7])),
+        ),
+        or(
+            or(or(i[8], i[9]), or(i[10], i[11])),
+            or(or(i[12], i[13]), or(i[14], i[15])),
+        ),
+    )
+}
+
 pub fn and8way(i: Arr8) -> bool {
     and(
         and(and(i[0], i[1]), and(i[2], i[3])),

@@ -8,7 +8,7 @@ use logic_gates::{Arr4, Arr8, Arr16};
 /// 1 1 |   1    0
 ///
 /// Carry is [0], Sum is [1]
-fn half_adder(a: bool, b: bool) -> [bool; 2] {
+pub fn half_adder(a: bool, b: bool) -> [bool; 2] {
     [bg::and(a, b), bg::xor(a, b)]
 }
 
@@ -22,7 +22,7 @@ fn half_adder(a: bool, b: bool) -> [bool; 2] {
 /// 1 0 1 | 01 1 |  10  |   1    0
 /// 1 1 0 | 10 0 |  00  |   1    0
 /// 1 1 1 | 10 1 |  01  |   1    1
-fn full_adder(a: bool, b: bool, c: bool) -> [bool; 2] {
+pub fn full_adder(a: bool, b: bool, c: bool) -> [bool; 2] {
     // original solution:
     // [
     //     bg::xor(half_adder(a, b)[0], half_adder(half_adder(a, b)[1], c)[0]),
@@ -46,7 +46,7 @@ fn full_adder(a: bool, b: bool, c: bool) -> [bool; 2] {
     [bg::or(a_b[0], absum_c[0]), absum_c[1]]
 }
 
-fn adder4(a: Arr4, b: Arr4) -> Arr4 {
+pub fn adder4(a: Arr4, b: Arr4) -> Arr4 {
     let _0 = full_adder(a[3], b[3], false);
     let _1 = full_adder(a[2], b[2], _0[0]);
     let _2 = full_adder(a[1], b[1], _1[0]);
@@ -54,7 +54,7 @@ fn adder4(a: Arr4, b: Arr4) -> Arr4 {
     [_3[1], _2[1], _1[1], _0[1]]
 }
 
-fn adder8(a: Arr8, b: Arr8) -> Arr8 {
+pub fn adder8(a: Arr8, b: Arr8) -> Arr8 {
     let _0 = full_adder(a[7], b[7], false);
     let _1 = full_adder(a[6], b[6], _0[0]);
     let _2 = full_adder(a[5], b[5], _1[0]);
@@ -67,7 +67,7 @@ fn adder8(a: Arr8, b: Arr8) -> Arr8 {
     [_7[1], _6[1], _5[1], _4[1], _3[1], _2[1], _1[1], _0[1]]
 }
 
-fn adder16(a: Arr16, b: Arr16) -> Arr16 {
+pub fn adder16(a: Arr16, b: Arr16) -> Arr16 {
     let _0 = full_adder(a[15], b[15], false);
     let _1 = full_adder(a[14], b[14], _0[0]);
     let _2 = full_adder(a[13], b[13], _1[0]);
@@ -93,15 +93,15 @@ fn adder16(a: Arr16, b: Arr16) -> Arr16 {
     ]
 }
 
-fn incrementer4(a: Arr4) -> Arr4 {
+pub fn incrementer4(a: Arr4) -> Arr4 {
     adder4(a, [false, false, false, true])
 }
 
-fn incrementer8(a: Arr8) -> Arr8 {
+pub fn incrementer8(a: Arr8) -> Arr8 {
     adder8(a, [false, false, false, false, false, false, false, true])
 }
 
-fn incrementer16(a: Arr16) -> Arr16 {
+pub fn incrementer16(a: Arr16) -> Arr16 {
     adder16(
         a,
         [
@@ -116,7 +116,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_half_adder() {
+    pub fn test_half_adder() {
         assert_eq!(half_adder(false, false), [false, false]);
         assert_eq!(half_adder(false, true), [false, true]);
         assert_eq!(half_adder(true, false), [false, true]);
@@ -124,7 +124,7 @@ mod tests {
     }
 
     #[test]
-    fn test_full_adder() {
+    pub fn test_full_adder() {
         assert_eq!(full_adder(false, false, false), [false, false]);
         assert_eq!(full_adder(false, false, true), [false, true]);
         assert_eq!(full_adder(false, true, false), [false, true]);
@@ -136,7 +136,7 @@ mod tests {
     }
 
     #[test]
-    fn test_adder4() {
+    pub fn test_adder4() {
         let _0 = [false, false, false, false];
         let _1 = [false, false, false, true];
         let _15 = [true, true, true, true];
@@ -158,7 +158,7 @@ mod tests {
     }
 
     #[test]
-    fn test_adder8() {
+    pub fn test_adder8() {
         let _0 = [false, false, false, false, false, false, false, false];
         let _1 = [false, false, false, false, false, false, false, true];
         let _255 = [true, true, true, true, true, true, true, true];
@@ -191,7 +191,7 @@ mod tests {
     }
 
     #[test]
-    fn test_adder16() {
+    pub fn test_adder16() {
         let _0 = [
             false, false, false, false, false, false, false, false, false, false, false, false,
             false, false, false, false,
@@ -250,7 +250,7 @@ mod tests {
     }
 
     #[test]
-    fn test_incrementer4() {
+    pub fn test_incrementer4() {
         let _0 = [false, false, false, false];
         let _15 = [true, true, true, true];
         let mut r = _0;
@@ -261,7 +261,7 @@ mod tests {
     }
 
     #[test]
-    fn test_incrementer8() {
+    pub fn test_incrementer8() {
         let _0 = [false, false, false, false, false, false, false, false];
         let _255 = [true, true, true, true, true, true, true, true];
         let mut r = _0;
@@ -272,7 +272,7 @@ mod tests {
     }
 
     #[test]
-    fn test_incrementer16() {
+    pub fn test_incrementer16() {
         let _0 = [
             false, false, false, false, false, false, false, false, false, false, false, false,
             false, false, false, false,
