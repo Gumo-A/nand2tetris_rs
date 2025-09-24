@@ -26,7 +26,11 @@ pub fn and(a: bool, b: bool) -> bool {
 /// 10 1
 /// 11 1
 pub fn or(a: bool, b: bool) -> bool {
-    not(and(not(a), not(b)))
+    // original, inefficient. Uses 5 nand gates
+    // not(and(not(a), not(b)))
+
+    // optimized, uses 3 nand gates
+    nand(not(a), not(b))
 }
 
 /// XOR truth table
