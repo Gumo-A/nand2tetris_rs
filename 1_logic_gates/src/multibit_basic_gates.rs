@@ -85,6 +85,10 @@ pub fn xor16(a: Arr16, b: Arr16) -> Arr16 {
     ]
 }
 
+/// if s, then b, else a
+/// s out
+/// 0  a
+/// 1  b
 pub fn mux16(a: Arr16, b: Arr16, s: bool) -> Arr16 {
     [
         mux(a[0], b[0], s),
