@@ -4,18 +4,14 @@ use logic_gates::basic_gates as bg;
 use logic_gates::multibit_basic_gates as mbg;
 use logic_gates::multiway_basic_gates as mwg;
 
-use std::time::Duration;
-use std::time::SystemTime;
-use std::time::UNIX_EPOCH;
-
-const ARR16_M1: Arr16 = [
-    true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-];
-const ARR16_0: Arr16 = [
+pub const ARR16_0: Arr16 = [
     false, false, false, false, false, false, false, false, false, false, false, false, false,
     false, false, false,
 ];
-const ARR16_1: Arr16 = [
+pub const ARR16_M1: Arr16 = [
+    true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+];
+pub const ARR16_1: Arr16 = [
     false, false, false, false, false, false, false, false, false, false, false, false, false,
     false, false, true,
 ];
@@ -48,54 +44,248 @@ pub fn alu(
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn rand_int() -> Arr16 {
-        let mut arr = [false; 16];
-        let time = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-            .to_string();
-        for (idx, c) in time.chars().rev().take(16).enumerate() {
-            arr[idx] = c.to_digit(10).unwrap() % 2 == 0;
-        }
-        std::thread::sleep(Duration::from_millis(10));
-        arr
-    }
+    use crate::helpers::rand_arr;
 
     // With these tests we will simply validate the
-    // truth table on figure 2.5b of the book.
+    // truth table on figure 2.5b of the book with 'random' inputs.
 
     #[test]
     pub fn test_alu_zero() {
-        let bits = [true, false, true, false, true, false];
-        let x = rand_int();
-        let y = rand_int();
+        for _ in 0..8 {
+            let bits = [true, false, true, false, true, false];
+            let x = rand_arr();
+            let y = rand_arr();
 
-        let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-        assert_eq!(result, ARR16_0);
+            assert_eq!(result, ARR16_0);
+        }
     }
 
     #[test]
     pub fn test_alu_one() {
-        let bits = [true, true, true, true, true, true];
-        let x = rand_int();
-        let y = rand_int();
+        for _ in 0..8 {
+            let bits = [true, true, true, true, true, true];
+            let x = rand_arr();
+            let y = rand_arr();
 
-        let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-        assert_eq!(result, ARR16_1);
+            assert_eq!(result, ARR16_1);
+        }
     }
 
     #[test]
     pub fn test_alu_minus_one() {
-        let bits = [true, true, true, false, true, false];
-        let x = rand_int();
-        let y = rand_int();
+        for _ in 0..8 {
+            let bits = [true, true, true, false, true, false];
+            let x = rand_arr();
+            let y = rand_arr();
 
-        let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-        assert_eq!(result, ARR16_M1);
+            assert_eq!(result, ARR16_M1);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_x() {
+        for _ in 0..8 {
+            let bits = [false, false, true, true, false, false];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, x);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_y() {
+        for _ in 0..8 {
+            let bits = [true, true, false, false, false, false];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, y);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_not_x() {
+        for _ in 0..8 {
+            let bits = [false, false, true, true, false, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, mbg::not16(x));
+        }
+    }
+
+    #[test]
+    pub fn test_alu_not_y() {
+        for _ in 0..8 {
+            let bits = [true, true, false, false, false, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, mbg::not16(y));
+        }
+    }
+
+    #[test]
+    pub fn test_alu_minus_x() {
+        for _ in 0..8 {
+            let bits = [false, false, true, true, true, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            todo!("I have to study how to calculate the negative of a number in two's complement");
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, x);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_minus_y() {
+        for _ in 0..8 {
+            let bits = [true, true, false, false, true, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            todo!("I have to study how to calculate the negative of a number in two's complement");
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, x);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_x_plus_one() {
+        for _ in 0..8 {
+            let bits = [false, true, true, true, true, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, adders::incrementer16(x));
+        }
+    }
+
+    #[test]
+    pub fn test_alu_y_plus_one() {
+        for _ in 0..8 {
+            let bits = [true, true, false, true, true, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, adders::incrementer16(y));
+        }
+    }
+
+    #[test]
+    pub fn test_alu_x_minus_one() {
+        for _ in 0..8 {
+            let bits = [false, false, true, true, true, false];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            todo!();
+            assert_eq!(result, ARR16_1);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_y_minus_one() {
+        for _ in 0..8 {
+            let bits = [true, true, false, false, true, false];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            todo!();
+            assert_eq!(result, ARR16_M1);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_x_plus_y() {
+        for _ in 0..8 {
+            let bits = [false, false, false, false, true, false];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, adders::adder16(x, y));
+        }
+    }
+
+    #[test]
+    pub fn test_alu_x_minus_y() {
+        for _ in 0..8 {
+            let bits = [false, true, false, false, true, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            todo!();
+            assert_eq!(result, x);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_y_minus_x() {
+        for _ in 0..8 {
+            let bits = [false, false, false, true, true, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            todo!();
+            assert_eq!(result, x);
+        }
+    }
+
+    #[test]
+    pub fn test_alu_x_and_y() {
+        for _ in 0..8 {
+            let bits = [false, false, false, false, false, false];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, mbg::and16(x, y));
+        }
+    }
+
+    #[test]
+    pub fn test_alu_x_or_y() {
+        for _ in 0..8 {
+            let bits = [false, true, false, true, false, true];
+            let x = rand_arr();
+            let y = rand_arr();
+
+            let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
+
+            assert_eq!(result, mbg::or16(x, y));
+        }
     }
 }
