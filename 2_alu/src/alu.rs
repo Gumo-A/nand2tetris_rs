@@ -11,6 +11,13 @@ pub const ARR16_0: Arr16 = [
 pub const ARR16_M1: Arr16 = [
     true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
 ];
+pub const ARR16_MIN: Arr16 = [
+    true, false, false, false, false, false, false, false, false, false, false, false, false,
+    false, false, false,
+];
+pub const ARR16_MAX: Arr16 = [
+    false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+];
 pub const ARR16_1: Arr16 = [
     false, false, false, false, false, false, false, false, false, false, false, false, false,
     false, false, true,
@@ -44,7 +51,10 @@ pub fn alu(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::helpers::rand_arr;
+    use crate::{
+        adders::adder16,
+        helpers::{arr_flip_sign, rand_arr},
+    };
 
     // With these tests we will simply validate the
     // truth table on figure 2.5b of the book with 'random' inputs.
@@ -147,10 +157,9 @@ mod tests {
             let x = rand_arr();
             let y = rand_arr();
 
-            todo!("I have to study how to calculate the negative of a number in two's complement");
             let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-            assert_eq!(result, x);
+            assert_eq!(result, arr_flip_sign(x));
         }
     }
 
@@ -161,10 +170,9 @@ mod tests {
             let x = rand_arr();
             let y = rand_arr();
 
-            todo!("I have to study how to calculate the negative of a number in two's complement");
             let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-            assert_eq!(result, x);
+            assert_eq!(result, arr_flip_sign(y));
         }
     }
 
@@ -203,8 +211,7 @@ mod tests {
 
             let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-            todo!();
-            assert_eq!(result, ARR16_1);
+            assert_eq!(result, adder16(x, ARR16_M1));
         }
     }
 
@@ -217,8 +224,7 @@ mod tests {
 
             let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-            todo!();
-            assert_eq!(result, ARR16_M1);
+            assert_eq!(result, adder16(y, ARR16_M1));
         }
     }
 
@@ -244,8 +250,7 @@ mod tests {
 
             let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-            todo!();
-            assert_eq!(result, x);
+            assert_eq!(result, adders::adder16(x, arr_flip_sign(y)));
         }
     }
 
@@ -258,8 +263,7 @@ mod tests {
 
             let (result, _, _) = alu(x, y, bits[0], bits[1], bits[2], bits[3], bits[4], bits[5]);
 
-            todo!();
-            assert_eq!(result, x);
+            assert_eq!(result, adders::adder16(y, arr_flip_sign(x)));
         }
     }
 
