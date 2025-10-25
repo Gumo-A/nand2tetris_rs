@@ -16,13 +16,17 @@ pub fn arr2bytes(a: Arr16) -> [u8; 2] {
     arr_bytes
 }
 
-pub fn arr2int(a: Arr16) -> i16 {
+pub fn arr2int_signed(a: Arr16) -> i16 {
     i16::from_be_bytes(arr2bytes(a))
 }
 
-pub fn int2arr(a: i16) -> Arr16 {
+pub fn arr2int_unsigned(a: Arr16) -> u16 {
+    u16::from_be_bytes(arr2bytes(a))
+}
+
+pub fn int2arr(a: [u8; 2]) -> Arr16 {
     let mut arr = ARR16_0;
-    for (idx, byte) in a.to_be_bytes().iter().enumerate() {
+    for (idx, byte) in a.iter().enumerate() {
         for i in 0..8 {
             let bit_idx = (idx * 8) + (7 - i);
             arr[bit_idx] = (*byte & (1u8 << i)) > 0;
@@ -64,7 +68,7 @@ mod tests {
     pub fn test_array2int() {
         let mut input = ARR16_MIN;
         for i in -(2i32.pow(15))..2i32.pow(15) {
-            assert_eq!(arr2int(input), i as i16);
+            assert_eq!(arr2int_signed(input), i as i16);
             input = incrementer16(input);
         }
     }
@@ -73,7 +77,7 @@ mod tests {
     pub fn test_int2arr() {
         let mut expected_out = ARR16_MIN;
         for i in -(2i32.pow(15))..2i32.pow(15) {
-            assert_eq!(int2arr(i as i16), expected_out);
+            assert_eq!(int2arr((i as i16).to_be_bytes()), expected_out);
             expected_out = incrementer16(expected_out);
         }
     }
@@ -87,7 +91,10 @@ mod tests {
 
         let iter = -(2i32.pow(15))..2i32.pow(15);
         for (i, j) in (iter.clone().map(|x| x + 1)).zip(iter.rev()) {
-            assert_eq!(arr_flip_sign(int2arr(i as i16)), int2arr(j as i16));
+            assert_eq!(
+                arr_flip_sign(int2arr((i as i16).to_be_bytes())),
+                int2arr((j as i16).to_be_bytes())
+            );
         }
     }
 }
