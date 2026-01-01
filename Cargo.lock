@@ -12,3 +12,11 @@ dependencies = [
 [[package]]
 name = "logic_gates"
 version = "0.1.0"
+
+[[package]]
+name = "memory"
+version = "0.1.0"
+dependencies = [
+ "alu",
+ "logic_gates",
+]
