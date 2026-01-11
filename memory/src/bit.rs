@@ -18,6 +18,10 @@ impl Bit {
         let m = mux(*self.dff.out.borrow(), input, load);
         self.dff.prove(m)
     }
+
+    pub fn str(&self) -> char {
+        if self.prove(false, false) { '1' } else { '0' }
+    }
 }
 
 #[cfg(test)]

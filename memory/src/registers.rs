@@ -1,10 +1,31 @@
+use core::fmt;
+use std::str::FromStr;
+
 use logic_gates::{Arr16, multibit_basic_gates::mux16};
 
 use crate::bit::Bit;
 
-#[derive(Debug)]
 pub struct R16 {
     bits: [Bit; 16],
+}
+
+impl fmt::Debug for R16 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self, f)
+    }
+}
+
+impl fmt::Display for R16 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut s = String::from_str("R16: [").unwrap();
+        for bit in self.bits.iter() {
+            s.push(bit.str());
+            s.push(',');
+            s.push(' ');
+        }
+        s.push(']');
+        write!(f, "{}", s)
+    }
 }
 
 impl R16 {
@@ -27,6 +48,29 @@ impl R16 {
                 Bit::new(false),
                 Bit::new(false),
                 Bit::new(false),
+            ],
+        }
+    }
+
+    pub fn with_arr(arr: Arr16) -> Self {
+        Self {
+            bits: [
+                Bit::new(arr[0]),
+                Bit::new(arr[1]),
+                Bit::new(arr[2]),
+                Bit::new(arr[3]),
+                Bit::new(arr[4]),
+                Bit::new(arr[5]),
+                Bit::new(arr[6]),
+                Bit::new(arr[7]),
+                Bit::new(arr[8]),
+                Bit::new(arr[9]),
+                Bit::new(arr[10]),
+                Bit::new(arr[11]),
+                Bit::new(arr[12]),
+                Bit::new(arr[13]),
+                Bit::new(arr[14]),
+                Bit::new(arr[15]),
             ],
         }
     }
@@ -74,15 +118,14 @@ impl R16 {
     }
 
     pub fn prove(&self, input: Arr16, load: bool) -> Arr16 {
-        let arr = self.to_arr();
-        let m = mux16(arr, input, load);
+        let m = mux16(self.to_arr(), input, load);
         self.prove_bits(m)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use alu::alu::{ARR16_0, ARR16_1, ARR16_MAX};
+    use alu::alu::{ARR16_0, ARR16_1, ARR16_M1, ARR16_MAX, ARR16_MIN};
 
     use super::*;
 
@@ -95,5 +138,11 @@ mod tests {
         assert_eq!(r16.prove(ARR16_0, false), ARR16_1);
         assert_eq!(r16.prove(ARR16_MAX, true), ARR16_1);
         assert_eq!(r16.prove(ARR16_0, false), ARR16_MAX);
+
+        assert_eq!(R16::with_arr(ARR16_0).to_arr(), ARR16_0);
+        assert_eq!(R16::with_arr(ARR16_1).to_arr(), ARR16_1);
+        assert_eq!(R16::with_arr(ARR16_M1).to_arr(), ARR16_M1);
+        assert_eq!(R16::with_arr(ARR16_MAX).to_arr(), ARR16_MAX);
+        assert_eq!(R16::with_arr(ARR16_MIN).to_arr(), ARR16_MIN);
     }
 }
