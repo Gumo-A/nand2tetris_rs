@@ -1,20 +1,16 @@
-use std::cell::RefCell;
-
 #[derive(Debug)]
 pub struct DFF {
-    pub out: RefCell<bool>,
+    pub out: bool,
 }
 
 impl DFF {
     pub fn new(state: bool) -> Self {
-        Self {
-            out: RefCell::new(state),
-        }
+        Self { out: state }
     }
 
-    pub fn prove(&self, input: bool) -> bool {
-        let out = *self.out.borrow();
-        *self.out.borrow_mut() = input;
+    pub fn prove(&mut self, input: bool) -> bool {
+        let out = self.out;
+        self.out = input;
         out
     }
 }
@@ -25,24 +21,24 @@ mod tests {
 
     #[test]
     fn dff() {
-        let dff = DFF::new(false);
-        assert_eq!(*dff.out.borrow(), false);
+        let mut dff = DFF::new(false);
+        assert_eq!(dff.out, false);
         assert_eq!(dff.prove(true), false);
-        assert_eq!(*dff.out.borrow(), true);
+        assert_eq!(dff.out, true);
 
-        let dff = DFF::new(true);
-        assert_eq!(*dff.out.borrow(), true);
+        let mut dff = DFF::new(true);
+        assert_eq!(dff.out, true);
         assert_eq!(dff.prove(false), true);
-        assert_eq!(*dff.out.borrow(), false);
+        assert_eq!(dff.out, false);
 
-        let dff = DFF::new(true);
-        assert_eq!(*dff.out.borrow(), true);
+        let mut dff = DFF::new(true);
+        assert_eq!(dff.out, true);
         assert_eq!(dff.prove(true), true);
-        assert_eq!(*dff.out.borrow(), true);
+        assert_eq!(dff.out, true);
 
-        let dff = DFF::new(false);
-        assert_eq!(*dff.out.borrow(), false);
+        let mut dff = DFF::new(false);
+        assert_eq!(dff.out, false);
         assert_eq!(dff.prove(false), false);
-        assert_eq!(*dff.out.borrow(), false);
+        assert_eq!(dff.out, false);
     }
 }

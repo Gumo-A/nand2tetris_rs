@@ -14,13 +14,13 @@ impl Bit {
         }
     }
 
-    pub fn prove(&self, input: bool, load: bool) -> bool {
-        let m = mux(*self.dff.out.borrow(), input, load);
+    pub fn prove(&mut self, input: bool, load: bool) -> bool {
+        let m = mux(self.dff.out, input, load);
         self.dff.prove(m)
     }
 
     pub fn str(&self) -> char {
-        if self.prove(false, false) { '1' } else { '0' }
+        if self.dff.out { '1' } else { '0' }
     }
 }
 
@@ -30,7 +30,7 @@ mod tests {
 
     #[test]
     fn bit() {
-        let bit = Bit::new(true);
+        let mut bit = Bit::new(true);
         assert_eq!(bit.prove(false, true), true);
         assert_eq!(bit.prove(false, false), false);
         assert_eq!(bit.prove(true, true), false);

@@ -4,10 +4,11 @@ use std::str::FromStr;
 use logic_gates::Arr16;
 use logic_gates::multiway_basic_gates as gates;
 
+use crate::ram::RamChip;
 use crate::registers::R16;
 
 pub struct RAM8 {
-    registers: [R16; 8],
+    registers: Vec<R16>,
 }
 
 impl fmt::Display for RAM8 {
@@ -26,13 +27,9 @@ impl fmt::Debug for RAM8 {
     }
 }
 
-impl RAM8 {
-    pub fn new(registers: [R16; 8]) -> Self {
-        Self { registers }
-    }
-
-    pub fn with_all(arr: Arr16) -> Self {
-        let registers = [
+impl RamChip for RAM8 {
+    fn new_with(arr: Arr16) -> Self {
+        let registers = vec![
             R16::with_arr(arr),
             R16::with_arr(arr),
             R16::with_arr(arr),
@@ -42,10 +39,12 @@ impl RAM8 {
             R16::with_arr(arr),
             R16::with_arr(arr),
         ];
-        Self::new(registers)
+        assert_eq!(registers.len(), 8);
+        Self { registers }
     }
 
-    pub fn prove(&self, input: Arr16, load: bool, address: [bool; 3]) -> Arr16 {
+    fn prove(&mut self, input: Arr16, load: bool, address: &[bool]) -> Arr16 {
+        let address = address.try_into().unwrap();
         let load_arr = gates::demux8way(load, address);
         let r = [
             self.registers[0].prove(input, load_arr[7]),
@@ -69,22 +68,24 @@ mod test {
 
     #[test]
     fn ram8() {
-        let ram8 = RAM8::with_all(ARR16_0);
+        let mut ram8 = RAM8::new_with(ARR16_0);
 
         // load 1 in register 0, gets old val ARR16_0
-        let old0 = ram8.prove(ARR16_1, true, [false, false, false]);
+        let addr_0 = [false, false, false];
+        let old0 = ram8.prove(ARR16_1, true, &addr_0);
         // should get ARR16_1
-        let new0 = ram8.prove(ARR16_MAX, false, [false, false, false]);
+        let new0 = ram8.prove(ARR16_MAX, false, &addr_0);
         assert_eq!(old0, ARR16_0);
         assert_eq!(new0, ARR16_1);
 
         // proving for a value multiple times doesn't change it
-        ram8.prove(ARR16_MAX, true, [false, true, false]);
-        let new2 = ram8.prove(ARR16_0, false, [false, true, false]);
+        let addr_2 = [false, true, false];
+        ram8.prove(ARR16_MAX, true, &addr_2);
+        let new2 = ram8.prove(ARR16_0, false, &addr_2);
         assert_eq!(new2, ARR16_MAX);
-        let new2 = ram8.prove(ARR16_0, false, [false, true, false]);
+        let new2 = ram8.prove(ARR16_0, false, &addr_2);
         assert_eq!(new2, ARR16_MAX);
-        let new2 = ram8.prove(ARR16_0, false, [false, true, false]);
+        let new2 = ram8.prove(ARR16_0, false, &addr_2);
         assert_eq!(new2, ARR16_MAX);
     }
 }

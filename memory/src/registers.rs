@@ -75,7 +75,7 @@ impl R16 {
         }
     }
 
-    fn to_arr(&self) -> Arr16 {
+    fn to_arr(&mut self) -> Arr16 {
         [
             self.bits[0].prove(false, false),
             self.bits[1].prove(false, false),
@@ -96,7 +96,7 @@ impl R16 {
         ]
     }
 
-    fn prove_bits(&self, arr: Arr16) -> Arr16 {
+    fn prove_bits(&mut self, arr: Arr16) -> Arr16 {
         [
             self.bits[0].prove(arr[0], true),
             self.bits[1].prove(arr[1], true),
@@ -117,7 +117,7 @@ impl R16 {
         ]
     }
 
-    pub fn prove(&self, input: Arr16, load: bool) -> Arr16 {
+    pub fn prove(&mut self, input: Arr16, load: bool) -> Arr16 {
         let m = mux16(self.to_arr(), input, load);
         self.prove_bits(m)
     }
@@ -131,7 +131,7 @@ mod tests {
 
     #[test]
     fn r16() {
-        let r16 = R16::new();
+        let mut r16 = R16::new();
         assert_eq!(r16.to_arr(), ARR16_0);
         assert_eq!(r16.prove(ARR16_1, true), ARR16_0);
         assert_eq!(r16.prove(ARR16_MAX, false), ARR16_1);

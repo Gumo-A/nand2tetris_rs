@@ -5,15 +5,15 @@ use logic_gates::Arr16;
 use logic_gates::multiway_basic_gates as gates;
 
 use crate::ram::RamChip;
-use crate::ram::ram8::RAM8;
+use crate::ram::ram64::RAM64;
 
-pub struct RAM64 {
-    registers: Vec<RAM8>,
+pub struct RAM512 {
+    registers: Vec<RAM64>,
 }
 
-impl fmt::Display for RAM64 {
+impl fmt::Display for RAM512 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut s = String::from_str("RAM64:\n").unwrap();
+        let mut s = String::from_str("RAM512:\n").unwrap();
         for (idx, r) in self.registers.iter().enumerate() {
             s.push_str(format!("{} {}\n", idx, r).as_str());
         }
@@ -21,31 +21,34 @@ impl fmt::Display for RAM64 {
     }
 }
 
-impl fmt::Debug for RAM64 {
+impl fmt::Debug for RAM512 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Display::fmt(&self, f)
     }
 }
 
-impl RamChip for RAM64 {
+impl RamChip for RAM512 {
     fn new_with(arr: Arr16) -> Self {
         let registers = vec![
-            RAM8::new_with(arr),
-            RAM8::new_with(arr),
-            RAM8::new_with(arr),
-            RAM8::new_with(arr),
-            RAM8::new_with(arr),
-            RAM8::new_with(arr),
-            RAM8::new_with(arr),
-            RAM8::new_with(arr),
+            RAM64::new_with(arr),
+            RAM64::new_with(arr),
+            RAM64::new_with(arr),
+            RAM64::new_with(arr),
+            RAM64::new_with(arr),
+            RAM64::new_with(arr),
+            RAM64::new_with(arr),
+            RAM64::new_with(arr),
         ];
         assert_eq!(registers.len(), 8);
         Self { registers }
     }
+
     fn prove(&mut self, input: Arr16, load: bool, address: &[bool]) -> Arr16 {
-        let address: [bool; 6] = address.try_into().unwrap();
+        let address: [bool; 9] = address.try_into().unwrap();
         let ram_idx = [address[0], address[1], address[2]];
-        let reg_idx = [address[3], address[4], address[5]];
+        let reg_idx = [
+            address[3], address[4], address[5], address[6], address[7], address[8],
+        ];
         let ram_arr = gates::demux8way(load, ram_idx);
         let r = [
             self.registers[0].prove(input, ram_arr[7], &reg_idx),
@@ -68,44 +71,46 @@ mod test {
     use super::*;
 
     #[test]
-    fn ram64() {
-        let mut ram64 = RAM64::new_with(ARR16_0);
+    fn ram512() {
+        let mut ram512 = RAM512::new_with(ARR16_0);
 
         // load 1 in register 0, gets old val ARR16_0
-        let addr_00 = [false, false, false, false, false, false];
-        let old0 = ram64.prove(ARR16_1, true, &addr_00);
+        let addr_000 = [
+            false, false, false, false, false, false, false, false, false,
+        ];
+        let old0 = ram512.prove(ARR16_1, true, &addr_000);
         // should get ARR16_1
-        let new0 = ram64.prove(ARR16_MAX, false, &addr_00);
+        let new0 = ram512.prove(ARR16_MAX, false, &addr_000);
         assert_eq!(old0, ARR16_0);
         assert_eq!(new0, ARR16_1);
 
         // proving for a value multiple times doesn't change it
-        let addr_02 = [false, false, false, false, true, false];
-        ram64.prove(ARR16_MAX, true, &addr_02);
-        let new2 = ram64.prove(ARR16_0, false, &addr_02);
+        let addr_020 = [false, false, false, false, true, false, false, false, false];
+        ram512.prove(ARR16_MAX, true, &addr_020);
+        let new2 = ram512.prove(ARR16_0, false, &addr_020);
         assert_eq!(new2, ARR16_MAX);
-        let new2 = ram64.prove(ARR16_0, false, &addr_02);
+        let new2 = ram512.prove(ARR16_0, false, &addr_020);
         assert_eq!(new2, ARR16_MAX);
-        let new2 = ram64.prove(ARR16_0, false, &addr_02);
-        assert_eq!(new2, ARR16_MAX);
-
-        // can access different RAM8s
-        let addr_12 = [false, false, true, false, true, false];
-        ram64.prove(ARR16_MAX, true, &addr_12);
-        let new2 = ram64.prove(ARR16_0, false, &addr_12);
-        assert_eq!(new2, ARR16_MAX);
-        let new2 = ram64.prove(ARR16_0, false, &addr_12);
-        assert_eq!(new2, ARR16_MAX);
-        let new2 = ram64.prove(ARR16_0, false, &addr_12);
+        let new2 = ram512.prove(ARR16_0, false, &addr_020);
         assert_eq!(new2, ARR16_MAX);
 
-        let addr_77 = [true, true, true, true, true, true];
-        ram64.prove(ARR16_MIN, true, &addr_77);
-        let new2 = ram64.prove(ARR16_0, false, &addr_77);
+        // can access different RAM64s
+        let addr_120 = [false, false, true, false, true, false, false, false, false];
+        ram512.prove(ARR16_MAX, true, &addr_120);
+        let new2 = ram512.prove(ARR16_0, false, &addr_120);
+        assert_eq!(new2, ARR16_MAX);
+        let new2 = ram512.prove(ARR16_0, false, &addr_120);
+        assert_eq!(new2, ARR16_MAX);
+        let new2 = ram512.prove(ARR16_0, false, &addr_120);
+        assert_eq!(new2, ARR16_MAX);
+
+        let addr_777 = [true, true, true, true, true, true, true, true, true];
+        ram512.prove(ARR16_MIN, true, &addr_777);
+        let new2 = ram512.prove(ARR16_0, false, &addr_777);
         assert_eq!(new2, ARR16_MIN);
-        let new2 = ram64.prove(ARR16_0, false, &addr_77);
+        let new2 = ram512.prove(ARR16_0, false, &addr_777);
         assert_eq!(new2, ARR16_MIN);
-        let new2 = ram64.prove(ARR16_0, false, &addr_77);
+        let new2 = ram512.prove(ARR16_0, false, &addr_777);
         assert_eq!(new2, ARR16_MIN);
     }
 }
